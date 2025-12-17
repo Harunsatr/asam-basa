@@ -15,10 +15,10 @@ jobs:
         node-version: [18.x, 20.x]
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -34,9 +34,11 @@ jobs:
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'test-key' }}
     
-    - name: Upload build artifacts
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: dist-${{ matrix.node-version }}
-        path: dist/
+    - name: Build verification
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "❌ Build failed - dist directory not found"
+          exit 1
+        fi
+        echo "✅ Build successful - dist directory created"
+        du -sh dist
