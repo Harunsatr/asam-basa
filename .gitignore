@@ -31,3 +31,6 @@ dist-ssr
 # Build outputs
 *.tsbuildinfo
 .vite
+
+# Local Netlify folder
+.netlify

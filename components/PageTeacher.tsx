@@ -1,11 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { QuizResult } from '../types';
 
 interface PageTeacherProps {
     data: QuizResult[];
 }
 
+// Kredensial login guru
+const TEACHER_CREDENTIALS = {
+    username: 'gurru',
+    password: 'guru123'
+};
+
 const PageTeacher: React.FC<PageTeacherProps> = ({ data }) => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loginError, setLoginError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (username === TEACHER_CREDENTIALS.username && password === TEACHER_CREDENTIALS.password) {
+            setIsLoggedIn(true);
+            setLoginError('');
+        } else {
+            setLoginError('Username atau password salah!');
+        }
+    };
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        setUsername('');
+        setPassword('');
+    };
     
     const downloadCSV = () => {
         const headers = ["Nama,Nilai,Persentase,Waktu"];
@@ -26,6 +53,83 @@ const PageTeacher: React.FC<PageTeacherProps> = ({ data }) => {
         return 'bg-red-900/30 text-red-300 border border-red-700';
     };
 
+    // Login Form
+    if (!isLoggedIn) {
+        return (
+            <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white flex items-center justify-center p-8 pb-32 animate-fade-in">
+                <div className="w-full max-w-md">
+                    <div className="glass rounded-2xl p-8 shadow-2xl">
+                        <div className="text-center mb-8">
+                            <span className="text-6xl mb-4 block">👨‍🏫</span>
+                            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                                Login Guru
+                            </h1>
+                            <p className="text-gray-400 mt-2">Masuk untuk mengakses dashboard</p>
+                        </div>
+
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    Username
+                                </label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="w-full px-4 py-3 bg-slate-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    placeholder="Masukkan username"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    Password
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full px-4 py-3 bg-slate-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-12"
+                                        placeholder="Masukkan password"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        {showPassword ? '🙈' : '👁️'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {loginError && (
+                                <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-300 text-sm text-center">
+                                    ⚠️ {loginError}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-lg shadow-lg hover:shadow-blue-500/50 transform hover:scale-105 transition-all"
+                            >
+                                🔐 Masuk
+                            </button>
+                        </form>
+
+                        <div className="mt-6 p-4 bg-slate-800/50 rounded-lg text-center">
+                            <p className="text-gray-500 text-xs">
+                                Akses khusus untuk guru pengajar
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white p-8 pb-32 animate-fade-in">
             <div className="max-w-6xl mx-auto">
@@ -39,17 +143,25 @@ const PageTeacher: React.FC<PageTeacherProps> = ({ data }) => {
                             Pantau hasil pembelajaran siswa secara real-time
                         </p>
                     </div>
-                    <button 
-                        onClick={downloadCSV}
-                        disabled={data.length === 0}
-                        className={`py-3 px-6 rounded-lg font-bold transition-all ${
-                            data.length === 0 
-                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed' 
-                                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white shadow-lg hover:shadow-green-500/50 transform hover:scale-105'
-                        }`}
-                    >
-                        📥 Download CSV
-                    </button>
+                    <div className="flex gap-3">
+                        <button 
+                            onClick={downloadCSV}
+                            disabled={data.length === 0}
+                            className={`py-3 px-6 rounded-lg font-bold transition-all ${
+                                data.length === 0 
+                                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed' 
+                                    : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white shadow-lg hover:shadow-green-500/50 transform hover:scale-105'
+                            }`}
+                        >
+                            📥 Download CSV
+                        </button>
+                        <button 
+                            onClick={handleLogout}
+                            className="py-3 px-6 rounded-lg font-bold bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg hover:shadow-red-500/50 transform hover:scale-105 transition-all"
+                        >
+                            🚪 Logout
+                        </button>
+                    </div>
                 </div>
 
                 {/* Statistics Summary */}
@@ -126,10 +238,6 @@ const PageTeacher: React.FC<PageTeacherProps> = ({ data }) => {
                 )}
             </div>
         </div>
-    );
-};
-
-export default PageTeacher;
     );
 };
 
